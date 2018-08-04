@@ -8,10 +8,13 @@ from symbol.proto2d import Proto2DBlock
 
 root='c:/dataset/cifar/split/'
 outdir = 'output/'
+
+if not os.path.exists(outdir):
+    os.makedirs(outdir)
 #round number
 pretrain = -100
 
-lr0 = 0.1
+lr0 = 0.01
 wd = 0.005
 batchSize=10 #for testIter, if set size not multipler of batch, error label value returned
 imgSize=28 #after crop
@@ -71,11 +74,11 @@ class CIFARNET(nn.Block):
         super(CIFARNET,self).__init__(**kwargs)
         with self.name_scope():
             self.convs,self.fcs = nn.Sequential(), nn.Sequential()
-            self.convs.add( nn.Conv2D(channels=32,kernel_size=3,strides=1,padding=1)  )
-            self.convs.add( CIFARCONV(ch=32) )
-            self.convs.add( CIFARCONV(ch=64,downsample=True) )
-            self.convs.add( CIFARCONV(ch=80,downsample=True) )
-            self.convs.add( Proto2DBlock(80,64, imgSize, batchSize) )
+            self.convs.add( nn.Conv2D(channels=8,kernel_size=3,strides=1,padding=1)  )
+            self.convs.add( CIFARCONV(ch=8) )
+            self.convs.add( CIFARCONV(ch=16,downsample=True) )
+            self.convs.add( CIFARCONV(ch=32,downsample=True) )
+            self.convs.add( Proto2DBlock(32,64, imgSize, batchSize) )
             self.fcs.add( nn.GlobalMaxPool2D() )
             self.fcs.add(nn.Dense(classNum))
         return
@@ -226,7 +229,7 @@ lrch = mx.lr_scheduler.PolyScheduler(100000, base_lr=lr0,pwr=2)
 
 
 round = 0
-for epoch in range(200):
+for epoch in range(100000):
     trainIter.reset()
 
 
@@ -245,7 +248,7 @@ for epoch in range(200):
             print 'round {} {:.2f} {}'.format(round,(time() - t0)/60.0,train_loss.get())
             visualloss.update_train(round,train_loss.get()[1])
             visualloss.show()
-
+    net.save_params(os.path.join(outdir,'cifar-%.4d.params'%round))
     hr = HITRATE("hit-rate")
     testIter.reset()
     for batch in testIter:
@@ -258,10 +261,9 @@ for epoch in range(200):
     visualloss.show()
     print 'epoch {} lr {:.3f} {:.2f} min {} {} {}'.format( epoch,trainer.learning_rate, (time()-t0)/60.0,
               train_loss.get(),test_loss.get(), hr)
-    #net.export(os.path.join(outdir,"cifar"),epoch=round)
-    net.save_params(os.path.join(outdir,'cifar-%.4d.params'%round))
+    
     # projection
-    if (1+epoch) % 100 == 0:
+    if (1+epoch) % 10 == 0:
         net = do_project(trainIter,net)
 
 
