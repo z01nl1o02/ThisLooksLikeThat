@@ -230,8 +230,8 @@ class Proto2D(mx.operator.CustomOp):
             print 'dw output: {} {} {}'.format(dw.min(), dw.max(), dw.mean())
             print 'backward output end'
 
-        self.assign(in_grad[0],req[0],dz)
-        self.assign(in_grad[1],req[1],dw)
+        self.assign(in_grad[0],req[0],dz*2)
+        self.assign(in_grad[1],req[1],dw*(-1))
         return
 
 
