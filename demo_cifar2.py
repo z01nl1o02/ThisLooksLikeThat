@@ -12,9 +12,9 @@ outdir = 'output/'
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 #round number
-pretrain = -100
+pretrain = 4800
 
-lr0 = 0.01
+lr0 = 0.1
 wd = 0.005
 batchSize=10 #for testIter, if set size not multipler of batch, error label value returned
 imgSize=28 #after crop
@@ -56,12 +56,7 @@ class CIFARCONV(nn.Block):
             else:
                 self.conv3, self.bn3 = None, None
         return
-    def hybrid_forward(self, F, x, *args, **kwargs):
-        out=F.relu(self.bn1(self.conv1(x)))
-        out=F.relu(self.bn2(self.conv2(out)))
-        if self.conv3 is not None:
-            x = F.relu(self.bn3(self.conv3(x)))
-        return F.relu(x + out)
+
     def forward(self, x,*args):
         out=mx.nd.relu(self.bn1(self.conv1(x)))
         out=mx.nd.relu(self.bn2(self.conv2(out)))
@@ -74,21 +69,15 @@ class CIFARNET(nn.Block):
         super(CIFARNET,self).__init__(**kwargs)
         with self.name_scope():
             self.convs,self.fcs = nn.Sequential(), nn.Sequential()
-            self.convs.add( nn.Conv2D(channels=8,kernel_size=3,strides=1,padding=1)  )
-            self.convs.add( CIFARCONV(ch=8) )
-            self.convs.add( CIFARCONV(ch=16,downsample=True) )
-            self.convs.add( CIFARCONV(ch=32,downsample=True) )
-            self.convs.add( Proto2DBlock(32,64, imgSize, batchSize) )
+            self.convs.add( nn.Conv2D(channels=32,kernel_size=3,strides=1,padding=1)  )
+            self.convs.add( CIFARCONV(ch=32) )
+            self.convs.add( CIFARCONV(ch=64,downsample=True) )
+            self.convs.add( CIFARCONV(ch=64,downsample=True) )
+            self.convs.add( Proto2DBlock(64,20,imgSize,batchSize) )
             self.fcs.add( nn.GlobalMaxPool2D() )
             self.fcs.add(nn.Dense(classNum))
         return
-    def hybrid_forward(self, F, x, *args, **kwargs):
-        out = x
-        for net in self.convs:
-            out = net(out)
-        for fc in self.fcs:
-            out = fc(out)
-        return out
+
     def forward(self, x,*args):
         out = x
         for net in self.convs:
@@ -167,7 +156,7 @@ from matplotlib import pyplot as plt
 
 class VISUAL_LOSS(object):
     def __init__(self):
-        plt.ion()
+        #plt.ion()
         self.trainloss = []
         self.testloss = []
         return
@@ -196,7 +185,8 @@ class VISUAL_LOSS(object):
             x = [d[0] for d in self.testloss]
             y = [d[1] for d in self.testloss]
             plt.plot(x,y,"b")
-        plt.pause(0.05)
+        #plt.pause(0.05)
+        plt.savefig("train.png")
         return
 
 def do_project(dataIter,net):
@@ -225,11 +215,11 @@ t0 = time()
 
 visualloss = VISUAL_LOSS()
 
-lrch = mx.lr_scheduler.PolyScheduler(100000, base_lr=lr0,pwr=2)
+lrch = mx.lr_scheduler.PolyScheduler(50000, base_lr=lr0,pwr=2)
 
 
 round = 0
-for epoch in range(100000):
+for epoch in range(5000):
     trainIter.reset()
 
 
@@ -263,10 +253,10 @@ for epoch in range(100000):
               train_loss.get(),test_loss.get(), hr)
     
     # projection
-    if (1+epoch) % 10 == 0:
+    if (1+epoch) % 1000 == 0:
         net = do_project(trainIter,net)
 
 
-plt.show()
+#plt.show()
 
 
