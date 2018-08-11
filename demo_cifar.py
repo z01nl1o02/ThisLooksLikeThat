@@ -130,7 +130,7 @@ from matplotlib import pyplot as plt
 
 class VISUAL_LOSS(object):
     def __init__(self):
-        plt.ion()
+        #plt.ion()
         self.trainloss = []
         self.testloss = []
         return
@@ -159,7 +159,8 @@ class VISUAL_LOSS(object):
             x = [d[0] for d in self.testloss]
             y = [d[1] for d in self.testloss]
             plt.plot(x,y,"b")
-        plt.pause(0.05)
+        #plt.pause(0.05)
+        plt.savefig("cifar.train.png")
         return
 
 from time import time
@@ -204,6 +205,6 @@ for epoch in range(200):
     #net.export(os.path.join(outdir,"cifar"),epoch=round)
     net.save_params(os.path.join(outdir,'cifar-%.4d.params'%round))
 
-plt.show()
+#plt.show()
 
 
