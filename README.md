@@ -14,7 +14,11 @@ by Chaofan Chen, Oscar Li, Alina Barnett, Jonathan Su, Cynthia Rudin
    parse proto.pkl and save prototype as image
 
 ## CMakeLists.txt
-   some codes implemented by cpu codes to save time
+   some codes implemented by cpu codes to save 
 
-   
 
+# test
+  * results/cifar-29400.params   
+    batch size = 20 train for 29400 interation, test accuracy 69%
+  * results/*.jpg
+    prototypes

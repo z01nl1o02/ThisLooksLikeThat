@@ -173,6 +173,7 @@ class Proto2D(mx.operator.CustomOp):
                 output[:,y,x] = nd.reshape(val, (inChNum, width*height)).sum(axis=1)
         return output
     def add_r2_to_grad(self,dataOut,grad, C = 1): #second part of cost function
+        return grad
         batchSize, chNum, height, width = dataOut.shape
         val = nd.exp( (-1) * (nd.reshape(dataOut,(batchSize,-1)).max(axis=1) ) ).mean()
         for batchidx in range(batchSize):
