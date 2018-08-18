@@ -20,5 +20,5 @@ by Chaofan Chen, Oscar Li, Alina Barnett, Jonathan Su, Cynthia Rudin
 # test
   * results/cifar-29400.params   
     batch size = 20 train for 29400 interation, test accuracy 69%
-  * results/*.jpg
-    prototypes
+  * results prototxt
+  ![prototypes](https://github.com/z01nl1o02/ThisLooksLikeThat/blob/master/results/canvas.png)
